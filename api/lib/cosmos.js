@@ -17,48 +17,20 @@ function dayRangeUtc(d) {
   return { startIso: s.toISOString(), endIso: e.toISOString() };
 }
 
-// ✅ Admin check logic (works for both SWA Auth and shared passphrase)
+// ✅ Admin check logic (hardcoded passphrase for local + Azure use)
 function isAdmin(context, req) {
-  const useSwa = (process.env.USE_SWA_AUTH || 'false').toLowerCase() === 'true';
-  const admins = (process.env.ADMIN_EMAILS || '')
-    .split(',')
-    .map(s => s.trim().toLowerCase())
-    .filter(Boolean);
+  const headerPass = req.headers['x-admin-passphrase'];
+  const hardcodedPass = 'changeme'; // 🔒 your fixed admin passphrase
 
-  if (useSwa) {
-    // 🔹 Using SWA authentication (roles or email check)
-    const p = req.headers['x-ms-client-principal'];
-    if (!p) return { ok: false };
+  // Logging for visibility (won’t leak actual passphrase)
+  context.log('🔐 Admin header received:', !!headerPass);
 
-    try {
-      const d = JSON.parse(Buffer.from(p, 'base64').toString('utf8'));
-      const email =
-        d?.userDetails?.toLowerCase() ||
-        d?.claims?.find(c => c.typ?.includes('email'))?.val?.toLowerCase();
-      const roles = d?.userRoles || [];
-      return {
-        ok: roles.includes('admin') || (email && admins.includes(email)),
-        email
-      };
-    } catch (err) {
-      context.log('⚠️ Error decoding SWA principal:', err);
-      return { ok: false };
-    }
+  if (headerPass && headerPass === hardcodedPass) {
+    context.log('✅ Admin verified successfully');
+    return { ok: true };
   } else {
-    // 🔹 Manual admin mode using shared passphrase
-    const headerPass = req.headers['x-admin-passphrase'];
-    const envPass = process.env.ADMIN_PASSPHRASE;
-
-    context.log('🔐 Admin check:', {
-      provided: headerPass ? '[REDACTED]' : 'none',
-      envSet: !!envPass
-    });
-
-    if (!envPass) {
-      context.log('⚠️ ADMIN_PASSPHRASE not set in Azure Configuration.');
-    }
-
-    return { ok: headerPass && envPass && headerPass === envPass };
+    context.log('❌ Invalid or missing admin passphrase');
+    return { ok: false };
   }
 }
 
