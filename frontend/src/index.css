@@ -1,0 +1,18 @@
+:root{--pad:12px;--gap:8px;--muted:#667}*{box-sizing:border-box}
+body{font-family:system-ui,Arial,sans-serif;margin:0}
+header{padding:var(--pad);background:#111;color:#fff}
+.container{padding:var(--pad);max-width:980px;margin:0 auto}
+.tabs{display:flex;gap:var(--gap);margin:12px 0}
+.tab{padding:8px 12px;border:1px solid #ddd;border-radius:6px;cursor:pointer}
+.tab.active{background:#111;color:#fff;border-color:#111}
+.card{border:1px solid #ddd;border-radius:8px;padding:var(--pad);margin-bottom:12px}
+.row{display:flex;gap:var(--gap);flex-wrap:wrap;align-items:center}
+.row>*{flex:1 1 180px}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+input,select,button,textarea{width:100%;padding:8px;border:1px solid #ccc;border-radius:6px}
+button.primary{background:#111;color:#fff;border-color:#111;cursor:pointer}
+.badge{padding:2px 8px;border-radius:999px;border:1px solid #ddd;font-size:12px}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{border:1px solid #eee;padding:8px;text-align:left}
+.help{color:var(--muted);font-size:12px}
+hr{border:0;border-top:1px solid #eee;margin:12px 0}
