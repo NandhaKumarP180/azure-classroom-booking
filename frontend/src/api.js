@@ -13,45 +13,45 @@ export async function getBookings({ roomId, date, email }) {
   if (roomId) p.set('roomId', roomId);
   if (date) p.set('date', date);
   if (email) p.set('email', email);
-
   const r = await fetch(`${base}/bookings?${p.toString()}`);
   if (!r.ok) throw new Error('bookings');
   return r.json();
 }
 
-// ✅ Create booking (with optional admin passphrase)
+// ✅ Create a new booking (students/faculty)
 export async function createBooking(payload, adminPass) {
+  const headers = {
+    'Content-Type': 'application/json'
+  };
+  if (adminPass) headers['x-admin-passphrase'] = adminPass;
+
   const r = await fetch(`${base}/bookings`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(adminPass ? { 'x-admin-passphrase': adminPass } : {}),
-    },
-    body: JSON.stringify(payload),
+    headers,
+    body: JSON.stringify(payload)
+  });
+
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+// ✅ Approve booking (admin only)
+export async function approve(id, adminPass) {
+  if (!adminPass) throw new Error('Admin passphrase required!');
+  const r = await fetch(`${base}/bookings/${id}/approve`, {
+    method: 'PATCH',
+    headers: { 'x-admin-passphrase': adminPass }
   });
   if (!r.ok) throw new Error(await r.text());
   return r.json();
 }
 
-// ✅ Approve booking (now includes roomId)
-export async function approve(id, roomId, adminPass) {
-  const r = await fetch(`${base}/bookings/${id}/approve?roomId=${roomId}`, {
+// ✅ Deny booking (admin only)
+export async function deny(id, adminPass) {
+  if (!adminPass) throw new Error('Admin passphrase required!');
+  const r = await fetch(`${base}/bookings/${id}/deny`, {
     method: 'PATCH',
-    headers: {
-      ...(adminPass ? { 'x-admin-passphrase': adminPass } : {}),
-    },
-  });
-  if (!r.ok) throw new Error(await r.text());
-  return r.json();
-}
-
-// ✅ Deny booking (now includes roomId)
-export async function deny(id, roomId, adminPass) {
-  const r = await fetch(`${base}/bookings/${id}/deny?roomId=${roomId}`, {
-    method: 'PATCH',
-    headers: {
-      ...(adminPass ? { 'x-admin-passphrase': adminPass } : {}),
-    },
+    headers: { 'x-admin-passphrase': adminPass }
   });
   if (!r.ok) throw new Error(await r.text());
   return r.json();
