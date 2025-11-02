@@ -8,7 +8,15 @@ module.exports = async function (context, req) {
   }
 
   const id = context.bindingData.id;
-  const { resource } = await bookings.item(id, undefined).read();
+  const roomId = req.query.roomId || req.body?.roomId;
+
+  if (!roomId) {
+    context.res = { status: 400, body: 'roomId required' };
+    return;
+  }
+
+  // ✅ Include partition key in read
+  const { resource } = await bookings.item(id, roomId).read();
 
   if (!resource) {
     context.res = { status: 404, body: 'Not found' };
