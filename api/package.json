@@ -2,7 +2,7 @@
   "name": "classroom-booking-api",
   "version": "0.0.1",
   "private": true,
-  "type": "module",
+  "type": "commonjs",
   "scripts": { "start": "func start", "seed": "node seed-rooms.js" },
   "dependencies": { "@azure/cosmos": "^4.2.0" }
 }
